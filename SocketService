@@ -1,0 +1,134 @@
+
+
+import socket
+import sys
+
+from m5stack import *
+from uiflow import *
+from m5ui import *
+
+from lib import wifiCfg
+import utime as time
+
+#wifiCfg.screenShow()
+wifiCfg.autoConnect(lcdShow=True)
+
+
+def show(str,x=5,y=5):
+
+    #lcd.clear(lcd.BLACK)
+    #lcd.font(lcd.FONT_DejaVu18)
+    #lcd.fillRect(0, 0, 320, 30, 0x5757fc)
+    #lcd.setTextColor(lcd.WHITE, 0x5757fc)
+    #lcd.print(str, x, y, lcd.WHITE)
+    lcd.println(str,)
+    #lcd.print(str, x, y, lcd.WHITE)
+
+
+def get_host_ip():
+    import network
+    wlan_sta = network.WLAN(network.STA_IF)
+    wlan_sta.active(True)
+    #host=socket.gethostname() #获取计算机名称
+    #ip=socket.gethostbyname(host)#获取本机IP 在PC可以取得
+
+    #addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+    #lcd.print(addr, 5, 10, lcd.WHITE)
+    ip=wlan_sta.ifconfig()[0]
+
+    return ip
+
+lcd.clear(lcd.BLACK)
+_y=5
+serversocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+ 
+#setScreenColor(0x111111)
+_y+=10
+show("begin connect ...." ,5,_y)
+try:
+    _y+=10
+    ip=get_host_ip()
+    port=9100
+    show("begin connect 2....%s"%ip,5,_y )
+    serversocket.bind((ip,port))
+except:
+    show("Fail connect ...." ,5,_y)
+#绑定端口号
+
+
+#设置最大连接数，超过后排除
+serversocket.listen(5)
+isrecv=True
+
+
+while isrecv:
+    # 建立客户端连接
+    _y+=10
+    show("begin recv 2 ....",5,_y)
+    #msg=serversocket.recv(1024)
+    _y+=10
+    #show("conncet: %s" % str(msg.decode('utf-8')),5,_y)
+
+    clientsocket,addr = serversocket.accept()      
+    _y+=10
+    show("conncet: %s" % str(addr),5,_y)
+    data=clientsocket.recv(1024)
+    show('recv:%s'%data.decode('utf-8')) 
+    #lcd.print("conncet: %s" % str(addr))
+    #time.sleep(0.02)
+    msg='welcome, it is ok.'+ "\r\n"
+    clientsocket.send(msg.encode('utf-8'))
+    clientsocket.close()
+    #time.sleep(0.02)
+
+"""
+def buttonA_wasPressed():
+    show("Stop recv ....",5,5 )
+    isrecv=False
+    pass
+    
+btnA.wasPressed(buttonA_wasPressed)
+def buttonB_wasPressed():
+    show("begin recv ....",5,5 )
+    isrecv=True
+    pass
+  
+btnB.wasPressed(buttonB_wasPressed)
+def buttonC_wasPressed():
+    lcd.print('Press C', 0, 0, 0xFFFFFF)
+    pass
+
+btnC.wasPressed(buttonC_wasPressed)
+
+"""
+
+
+
+
+
+
+
+#sk=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+#try:
+#    lcd.print('connecting', 0, 0, 0xFFFFFF)
+ #   sk.connect(('192.168.1.4',8080))
+   
+
+#except :
+    #lcd.print('Unable to connect', 0, 0, 0xFFFFFF)
+
+#sk.send('test'.encode('utf-8'))
+#msg=sk.recv(1024)
+#lcd.print(msg.decode('utf-8'), 0, 0, 0xFFFFFF)
+#sk.close()
+
+#lcd.print('dfsfsfsdf',10, 0, 0xFFFFFF)
+#msg=sk.recv(1024)
+#lcd.print(msg.decode('utf-8'), 0, 0, 0xFFFFFF)
+#import sys
+#rlist=[sys.stdin,sk]
+
+#lcd.print(rlist)
+#sk.close()
